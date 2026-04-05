@@ -1,0 +1,254 @@
+/* StudyOS — Progress & Stats Styles */
+
+.progress-page-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+/* Heatmap Calendar */
+.heatmap-container {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+}
+
+.heatmap-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+
+.heatmap-streaks {
+  display: flex;
+  gap: var(--space-6);
+}
+
+.heatmap-streak {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.heatmap-streak-value {
+  font-family: var(--font-mono);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.heatmap-streak-label {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.heatmap-grid {
+  display: grid;
+  grid-template-columns: repeat(53, 1fr);
+  gap: 3px;
+}
+
+.heatmap-cell {
+  aspect-ratio: 1;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.04);
+  transition: all var(--transition-fast);
+  min-width: 0;
+}
+
+.heatmap-cell:hover {
+  outline: 1px solid var(--border-strong);
+}
+
+.heatmap-cell.level-1 { background: rgba(124, 58, 237, 0.25); }
+.heatmap-cell.level-2 { background: rgba(124, 58, 237, 0.5); }
+.heatmap-cell.level-3 { background: rgba(124, 58, 237, 0.8); }
+
+.heatmap-legend {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  justify-content: flex-end;
+  margin-top: var(--space-3);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.heatmap-legend-cell {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+.heatmap-months {
+  display: grid;
+  grid-template-columns: repeat(53, 1fr);
+  gap: 3px;
+  margin-bottom: var(--space-1);
+}
+
+.heatmap-month-label {
+  font-size: 9px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.heatmap-days {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-right: var(--space-2);
+}
+
+.heatmap-day-label {
+  font-size: 9px;
+  color: var(--text-muted);
+  height: 12px;
+  display: flex;
+  align-items: center;
+}
+
+.heatmap-body {
+  display: flex;
+}
+
+.heatmap-week-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(12px, 1fr));
+  grid-auto-rows: 12px;
+  gap: 3px;
+}
+
+/* Time by Subject Chart */
+.time-chart-container {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+}
+
+.time-chart-canvas {
+  width: 100%;
+  height: 250px;
+}
+
+/* Course Completion Rings */
+.completion-rings-container {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+}
+
+.completion-rings-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: var(--space-4);
+}
+
+.completion-ring-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  text-align: center;
+}
+
+.completion-ring-svg {
+  width: 72px;
+  height: 72px;
+}
+
+.completion-ring-label {
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.completion-ring-percent {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Revision Compliance */
+.revision-compliance {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+}
+
+.compliance-stat {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.compliance-number {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.compliance-label {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.compliance-bar {
+  margin-top: var(--space-3);
+}
+
+/* Session Timeline */
+.session-timeline {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+}
+
+.timeline-grid {
+  display: grid;
+  grid-template-columns: 60px repeat(7, 1fr);
+  gap: 1px;
+}
+
+.timeline-header-cell {
+  text-align: center;
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--text-muted);
+  padding: var(--space-2) 0;
+}
+
+.timeline-time-label {
+  font-size: var(--text-xs);
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  text-align: right;
+  padding-right: var(--space-2);
+}
+
+.timeline-cell {
+  height: 24px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 2px;
+  position: relative;
+}
+
+.timeline-cell.has-session {
+  background: var(--accent-bg);
+}
+
+/* Stats two-column layout */
+.stats-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-5);
+}

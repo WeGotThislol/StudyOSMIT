@@ -1,0 +1,161 @@
+/* StudyOS — Tasks & Deadlines Styles */
+
+.tasks-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+
+.tasks-header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.tasks-header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.tasks-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.task-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-5);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  transition: all var(--transition-base);
+}
+
+.task-card:hover {
+  border-color: var(--border-medium);
+}
+
+.task-card.done {
+  opacity: 0.5;
+}
+
+.task-checkbox {
+  margin-top: 2px;
+}
+
+.task-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.task-title {
+  font-size: var(--text-md);
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: var(--space-1);
+}
+
+.task-card.done .task-title {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+.task-description {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  margin-bottom: var(--space-2);
+  line-height: 1.4;
+}
+
+.task-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.task-due {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-xs);
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+}
+
+.task-due.overdue {
+  color: var(--color-red);
+}
+
+.task-due.due-soon {
+  color: var(--color-amber);
+}
+
+.task-priority {
+  font-size: var(--text-xs);
+  font-weight: 500;
+}
+
+.task-actions {
+  display: flex;
+  gap: var(--space-1);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.task-card:hover .task-actions {
+  opacity: 1;
+}
+
+/* Add Task Bottom Sheet */
+.add-task-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.add-task-type-selector {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.type-pill {
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-subtle);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.type-pill:hover {
+  background: var(--bg-hover);
+}
+
+.type-pill.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+.task-days-remaining {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+/* Exam specific card */
+.task-card-exam .task-studied-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}

@@ -1,0 +1,200 @@
+/* StudyOS — Onboarding Flow Styles */
+
+.onboarding-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-root);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+  transition: opacity 500ms ease;
+}
+
+.onboarding-overlay.hiding {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.onboarding-container {
+  width: 100%;
+  max-width: 480px;
+  padding: var(--space-5);
+}
+
+.onboarding-progress {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-10);
+}
+
+.onboarding-progress-dot {
+  height: 3px;
+  flex: 1;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-full);
+  transition: background var(--transition-slow);
+}
+
+.onboarding-progress-dot.active {
+  background: var(--accent);
+}
+
+.onboarding-progress-dot.done {
+  background: var(--accent-light);
+}
+
+.onboarding-step {
+  display: none;
+  animation: fadeInUp 400ms ease forwards;
+}
+
+.onboarding-step.active {
+  display: block;
+}
+
+.onboarding-icon {
+  width: 56px;
+  height: 56px;
+  background: var(--accent-bg);
+  border-radius: var(--radius-xl);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-6);
+  color: var(--accent-light);
+}
+
+.onboarding-title {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--space-2);
+  letter-spacing: -0.02em;
+}
+
+.onboarding-subtitle {
+  font-size: var(--text-md);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-8);
+  line-height: 1.5;
+}
+
+.onboarding-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  margin-bottom: var(--space-8);
+}
+
+.onboarding-actions {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.onboarding-skip {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color var(--transition-fast);
+  background: none;
+  border: none;
+  margin-left: auto;
+}
+
+.onboarding-skip:hover {
+  color: var(--text-secondary);
+}
+
+/* Google connect card in onboarding */
+.onboarding-google-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  margin-bottom: var(--space-5);
+}
+
+.onboarding-google-perms {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.onboarding-google-perm {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.onboarding-google-perm-icon {
+  width: 18px;
+  height: 18px;
+  color: var(--accent-light);
+  flex-shrink: 0;
+}
+
+/* Focus Mode Styles */
+.focus-mode-container {
+  display: none;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-5);
+}
+
+body.focus-mode .focus-mode-container {
+  display: block;
+}
+
+body.focus-mode .page-view {
+  display: none !important;
+}
+
+.focus-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-8);
+}
+
+.focus-section {
+  margin-bottom: var(--space-6);
+}
+
+.focus-section-title {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-3);
+}
+
+.focus-task-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-2);
+}
+
+.focus-timer {
+  text-align: center;
+  padding: var(--space-8) 0;
+}
+
+.focus-timer-display {
+  font-family: var(--font-mono);
+  font-size: 5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-6);
+}

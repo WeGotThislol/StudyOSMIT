@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en" data-font-size="comfortable">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="StudyOS — Your personal academic operating system. Track studies, manage deadlines, and ace your exams.">
+  <meta name="theme-color" content="#0d0d0d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>StudyOS — Academic OS</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/components.css">
+  <link rel="stylesheet" href="styles/sidebar.css">
+  <link rel="stylesheet" href="styles/dashboard.css">
+  <link rel="stylesheet" href="styles/courses.css">
+  <link rel="stylesheet" href="styles/tasks.css">
+  <link rel="stylesheet" href="styles/logger.css">
+  <link rel="stylesheet" href="styles/progress.css">
+  <link rel="stylesheet" href="styles/calendar.css">
+  <link rel="stylesheet" href="styles/settings.css">
+  <link rel="stylesheet" href="styles/onboarding.css">
+  <link rel="stylesheet" href="styles/responsive.css">
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📖</text></svg>">
+</head>
+<body>
+  <!-- App Shell -->
+  <div id="app">
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar"></aside>
+
+    <!-- Main Content Area -->
+    <main id="app-content">
+      <!-- Page Views (rendered by router) -->
+      <div class="page-view" id="page-dashboard"></div>
+      <div class="page-view" id="page-calendar"></div>
+      <div class="page-view" id="page-courses"></div>
+      <div class="page-view" id="page-tasks"></div>
+      <div class="page-view" id="page-logger"></div>
+      <div class="page-view" id="page-progress"></div>
+      <div class="page-view" id="page-settings"></div>
+
+      <!-- Focus Mode Container -->
+      <div class="focus-mode-container" id="focus-mode-content"></div>
+    </main>
+
+    <!-- Mobile Bottom Nav -->
+    <nav id="mobile-nav"></nav>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container"></div>
+
+  <!-- Onboarding Overlay -->
+  <div class="onboarding-overlay" id="onboarding-overlay" style="display:none;">
+    <div class="onboarding-container">
+      <div class="onboarding-progress">
+        <div class="onboarding-progress-dot active"></div>
+        <div class="onboarding-progress-dot"></div>
+        <div class="onboarding-progress-dot"></div>
+      </div>
+
+      <!-- Step 1: Welcome -->
+      <div class="onboarding-step active" id="onboarding-step-1">
+        <div class="onboarding-icon">
+          <i data-lucide="book-open" style="width:28px;height:28px"></i>
+        </div>
+        <h1 class="onboarding-title">Welcome to StudyOS</h1>
+        <p class="onboarding-subtitle">Your academic operating system for Semester 2. Track your studies, manage deadlines, schedule smart revisions — all in one place.</p>
+        <div class="onboarding-actions">
+          <button class="btn btn-primary btn-lg" id="onboarding-start-btn">
+            Get Started
+            <i data-lucide="arrow-right" style="width:16px;height:16px"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 2: Setup -->
+      <div class="onboarding-step" id="onboarding-step-2">
+        <div class="onboarding-icon">
+          <i data-lucide="user" style="width:28px;height:28px"></i>
+        </div>
+        <h1 class="onboarding-title">Let's set up</h1>
+        <p class="onboarding-subtitle">Tell us a bit about your semester so StudyOS can personalize your experience.</p>
+        <div class="onboarding-form">
+          <div class="form-group">
+            <label class="form-label">What's your name?</label>
+            <input type="text" class="form-input" id="onboarding-name" placeholder="Enter your name">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Semester start date</label>
+            <input type="date" class="form-input" id="onboarding-semester-start" value="2026-01-06">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Finals week end date</label>
+            <input type="date" class="form-input" id="onboarding-finals-end" value="2026-05-15">
+          </div>
+        </div>
+        <div class="onboarding-actions">
+          <button class="btn btn-primary btn-lg" id="onboarding-step2-next">
+            Continue
+            <i data-lucide="arrow-right" style="width:16px;height:16px"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 3: Google Connect -->
+      <div class="onboarding-step" id="onboarding-step-3">
+        <div class="onboarding-icon">
+          <i data-lucide="cloud" style="width:28px;height:28px"></i>
+        </div>
+        <h1 class="onboarding-title">Connect Google</h1>
+        <p class="onboarding-subtitle">Sync your tasks and calendar for a seamless study experience. You can always do this later in Settings.</p>
+        <div class="onboarding-google-card">
+          <div style="font-size:var(--text-sm);font-weight:500;margin-bottom:var(--space-2)">StudyOS will access:</div>
+          <div class="onboarding-google-perms">
+            <div class="onboarding-google-perm">
+              <i data-lucide="check-square" class="onboarding-google-perm-icon"></i>
+              <span>Google Tasks — to sync your deadlines</span>
+            </div>
+            <div class="onboarding-google-perm">
+              <i data-lucide="calendar" class="onboarding-google-perm-icon"></i>
+              <span>Google Calendar — to schedule study sessions</span>
+            </div>
+          </div>
+        </div>
+        <div class="onboarding-actions">
+          <button class="btn btn-primary btn-lg" id="onboarding-google-connect">
+            Connect Google Account
+          </button>
+          <button class="onboarding-skip" id="onboarding-skip-google">Skip for now</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gamification Unlock Modal (hidden) -->
+  <div class="modal-overlay" id="gamification-unlock-modal">
+    <div class="modal" style="text-align:center">
+      <div style="font-size:48px;margin-bottom:var(--space-4)">🏆</div>
+      <h2 class="modal-title">You've unlocked Study Mode!</h2>
+      <p style="color:var(--text-secondary);margin-bottom:var(--space-4)">XP tracking and achievements are now active. Keep up the amazing work!</p>
+      <button class="btn btn-primary" onclick="document.getElementById('gamification-unlock-modal').classList.remove('active')">Awesome!</button>
+    </div>
+  </div>
+
+  <!-- External Libraries -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <!-- App Module -->
+  <script type="module" src="js/app.js"></script>
+
+  <!-- Onboarding Logic (inline, runs before module loads) -->
+  <script>
+    // Onboarding step navigation (works before modules load)
+    document.addEventListener('DOMContentLoaded', () => {
+      const steps = [
+        document.getElementById('onboarding-step-1'),
+        document.getElementById('onboarding-step-2'),
+        document.getElementById('onboarding-step-3'),
+      ];
+      const dots = document.querySelectorAll('.onboarding-progress-dot');
+
+      function goToStep(n) {
+        steps.forEach((s, i) => {
+          s.classList.toggle('active', i === n);
+        });
+        dots.forEach((d, i) => {
+          d.classList.remove('active', 'done');
+          if (i === n) d.classList.add('active');
+          else if (i < n) d.classList.add('done');
+        });
+        if (window.lucide) lucide.createIcons();
+      }
+
+      // Step 1 → 2
+      document.getElementById('onboarding-start-btn')?.addEventListener('click', () => goToStep(1));
+
+      // Step 2 → 3
+      document.getElementById('onboarding-step2-next')?.addEventListener('click', () => {
+        const name = document.getElementById('onboarding-name')?.value?.trim();
+        if (!name) {
+          document.getElementById('onboarding-name')?.focus();
+          return;
+        }
+        // Save to localStorage directly (store may not be loaded yet)
+        try {
+          const data = JSON.parse(localStorage.getItem('studyos_data') || '{}');
+          if (!data.profile) data.profile = {};
+          data.profile.name = name;
+          data.profile.semesterStart = document.getElementById('onboarding-semester-start')?.value || '2026-01-06';
+          data.profile.finalsEnd = document.getElementById('onboarding-finals-end')?.value || '2026-05-15';
+          localStorage.setItem('studyos_data', JSON.stringify(data));
+        } catch(e) {}
+        goToStep(2);
+      });
+
+      // Step 3: Skip / Connect
+      document.getElementById('onboarding-skip-google')?.addEventListener('click', finishOnboarding);
+      document.getElementById('onboarding-google-connect')?.addEventListener('click', () => {
+        // Google connect is handled by the app module
+        // For now just show a message and allow skip
+        const btn = document.getElementById('onboarding-google-connect');
+        if (btn) {
+          btn.textContent = 'Set up Google in Settings later';
+          btn.disabled = true;
+          btn.className = 'btn btn-secondary btn-lg';
+        }
+        setTimeout(finishOnboarding, 800);
+      });
+
+      function finishOnboarding() {
+        try {
+          const data = JSON.parse(localStorage.getItem('studyos_data') || '{}');
+          if (!data.profile) data.profile = {};
+          data.profile.onboardingComplete = true;
+          data._schemaVersion = 1;
+          localStorage.setItem('studyos_data', JSON.stringify(data));
+        } catch(e) {}
+
+        const overlay = document.getElementById('onboarding-overlay');
+        if (overlay) {
+          overlay.classList.add('hiding');
+          setTimeout(() => {
+            overlay.style.display = 'none';
+            window.location.reload();
+          }, 500);
+        }
+      }
+    });
+  </script>
+</body>
+</html>

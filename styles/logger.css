@@ -1,0 +1,233 @@
+/* StudyOS — Study Logger Styles */
+
+.logger-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-6);
+}
+
+.logger-form {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+}
+
+.logger-form-title {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  margin-bottom: var(--space-5);
+}
+
+.logger-fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* Stopwatch */
+.stopwatch-container {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.stopwatch-display {
+  font-family: var(--font-mono);
+  font-size: 4rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-6);
+  line-height: 1;
+  text-align: center;
+}
+
+.stopwatch-controls {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.stopwatch-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-base);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.stopwatch-btn:hover {
+  border-color: var(--border-medium);
+  background: var(--bg-hover);
+}
+
+.stopwatch-btn.start {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+.stopwatch-btn.start:hover {
+  background: var(--accent-light);
+}
+
+.stopwatch-btn.stop {
+  background: var(--color-red);
+  border-color: var(--color-red);
+  color: white;
+}
+
+.stopwatch-label {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin-top: var(--space-4);
+  text-align: center;
+}
+
+/* Manual Duration Input */
+.duration-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.duration-input-wrapper input {
+  width: 80px;
+  text-align: center;
+  font-family: var(--font-mono);
+}
+
+.duration-or {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  padding: var(--space-3) 0;
+  text-align: center;
+}
+
+/* Topic chips */
+.topic-chips-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  max-height: 200px;
+  overflow-y: auto;
+  padding: var(--space-2);
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.topic-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border: 1px solid var(--border-subtle);
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.topic-chip:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.topic-chip.selected {
+  background: var(--accent-bg);
+  border-color: var(--accent);
+  color: var(--accent-light);
+}
+
+/* Session History */
+.session-history {
+  margin-top: var(--space-6);
+}
+
+.session-history-title {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  margin-bottom: var(--space-4);
+}
+
+.session-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.session-item {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  transition: all var(--transition-fast);
+}
+
+.session-item:hover {
+  border-color: var(--border-medium);
+}
+
+.session-item-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.session-item-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.session-item-title {
+  font-size: var(--text-base);
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.session-item-meta {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.session-item-duration {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--accent-light);
+  white-space: nowrap;
+}
+
+.session-item-delete {
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.session-item:hover .session-item-delete {
+  opacity: 1;
+}

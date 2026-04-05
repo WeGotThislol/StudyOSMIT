@@ -1,0 +1,354 @@
+/* StudyOS — Design Tokens, Resets & Base Styles */
+
+/* ========== FONTS ========== */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* ========== CSS CUSTOM PROPERTIES ========== */
+:root {
+  /* Backgrounds */
+  --bg-root: #0d0d0d;
+  --bg-body: #111111;
+  --bg-surface: #1a1a1a;
+  --bg-elevated: #1f1f1f;
+  --bg-hover: rgba(255, 255, 255, 0.04);
+  --bg-active: rgba(255, 255, 255, 0.06);
+  --bg-input: #161616;
+
+  /* Borders */
+  --border-subtle: rgba(255, 255, 255, 0.07);
+  --border-medium: rgba(255, 255, 255, 0.12);
+  --border-strong: rgba(255, 255, 255, 0.2);
+
+  /* Text */
+  --text-primary: #f0f0f0;
+  --text-secondary: #888888;
+  --text-muted: #666666;
+  --text-faint: #555555;
+  --text-inverse: #0d0d0d;
+
+  /* Accent — Violet (default) */
+  --accent: #7c3aed;
+  --accent-light: #8b5cf6;
+  --accent-dark: #6d28d9;
+  --accent-bg: rgba(124, 58, 237, 0.12);
+  --accent-bg-hover: rgba(124, 58, 237, 0.2);
+
+  /* Semantic Colors */
+  --color-red: #ef4444;
+  --color-red-bg: rgba(239, 68, 68, 0.12);
+  --color-amber: #f59e0b;
+  --color-amber-bg: rgba(245, 158, 11, 0.12);
+  --color-green: #10b981;
+  --color-green-bg: rgba(16, 185, 129, 0.12);
+  --color-blue: #3b82f6;
+  --color-blue-bg: rgba(59, 130, 246, 0.12);
+  --color-pink: #ec4899;
+  --color-pink-bg: rgba(236, 72, 153, 0.12);
+
+  /* Typography */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Font Sizes */
+  --text-xs: 0.6875rem;   /* 11px */
+  --text-sm: 0.75rem;     /* 12px */
+  --text-base: 0.8125rem; /* 13px */
+  --text-md: 0.875rem;    /* 14px */
+  --text-lg: 1rem;        /* 16px */
+  --text-xl: 1.125rem;    /* 18px */
+  --text-2xl: 1.375rem;   /* 22px */
+  --text-3xl: 1.75rem;    /* 28px */
+
+  /* Spacing (4px grid) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+
+  /* Transitions */
+  --transition-fast: 120ms ease;
+  --transition-base: 180ms ease;
+  --transition-slow: 300ms ease;
+
+  /* Layout */
+  --sidebar-width: 240px;
+  --topbar-height: 0px;
+  --content-max-width: 1200px;
+}
+
+/* Comfortable font size (default) */
+:root[data-font-size="compact"] {
+  --text-xs: 0.625rem;
+  --text-sm: 0.6875rem;
+  --text-base: 0.75rem;
+  --text-md: 0.8125rem;
+  --text-lg: 0.875rem;
+  --text-xl: 1rem;
+  --text-2xl: 1.25rem;
+  --text-3xl: 1.5rem;
+}
+
+/* ========== RESET ========== */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  line-height: 1.5;
+  color: var(--text-primary);
+  background-color: var(--bg-root);
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+a {
+  color: var(--accent-light);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+a:hover {
+  color: var(--accent);
+}
+
+img, svg {
+  display: block;
+  max-width: 100%;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+  font-size: inherit;
+}
+
+input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+  color: var(--text-primary);
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--accent);
+}
+
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
+}
+
+select option {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+::selection {
+  background: var(--accent);
+  color: white;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ========== APP LAYOUT ========== */
+#app {
+  display: flex;
+  min-height: 100vh;
+}
+
+#app-content {
+  flex: 1;
+  margin-left: var(--sidebar-width);
+  padding: var(--space-8);
+  max-width: calc(100vw - var(--sidebar-width));
+  transition: margin-left var(--transition-slow);
+}
+
+.page-view {
+  display: none;
+  opacity: 0;
+  animation: fadeIn 250ms ease forwards;
+}
+
+.page-view.page-active {
+  display: block;
+  opacity: 1;
+}
+
+.page-title {
+  font-size: var(--text-3xl);
+  font-weight: 600;
+  margin-bottom: var(--space-6);
+  color: var(--text-primary);
+}
+
+.page-subtitle {
+  font-size: var(--text-md);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-6);
+}
+
+/* ========== ANIMATIONS ========== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-in {
+  animation: fadeIn 250ms ease forwards;
+}
+
+.stagger-1 { animation-delay: 50ms; }
+.stagger-2 { animation-delay: 100ms; }
+.stagger-3 { animation-delay: 150ms; }
+.stagger-4 { animation-delay: 200ms; }
+
+/* ========== FOCUS MODE ========== */
+body.focus-mode #sidebar {
+  transform: translateX(-100%);
+  pointer-events: none;
+}
+
+body.focus-mode #app-content {
+  margin-left: 0;
+  max-width: 100vw;
+}
+
+/* ========== UTILITY CLASSES ========== */
+.mono {
+  font-family: var(--font-mono);
+}
+
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.justify-center { justify-content: center; }
+.gap-1 { gap: var(--space-1); }
+.gap-2 { gap: var(--space-2); }
+.gap-3 { gap: var(--space-3); }
+.gap-4 { gap: var(--space-4); }
+.gap-6 { gap: var(--space-6); }
+.flex-1 { flex: 1; }
+.flex-wrap { flex-wrap: wrap; }
+.text-center { text-align: center; }
+.w-full { width: 100%; }
+.hidden { display: none !important; }
