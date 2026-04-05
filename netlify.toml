@@ -1,0 +1,10 @@
+[build]
+  publish = "."
+  command = ""
+
+# No build step needed — pure static site
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
