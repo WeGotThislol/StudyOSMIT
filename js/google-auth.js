@@ -1,8 +1,9 @@
 // StudyOS — Google Auth Module
 // Uses Google Identity Services (GSI) for OAuth 2.0
 
-// ⚠️ REPLACE THIS with your Google Cloud project's Client ID
-const CLIENT_ID = '828835228790-ko2jv2f7nb9c23ncumbvp7javh02ot58.apps.googleusercontent.com';
+// Check localStorage first (set via Settings UI), then fall back to hardcoded value
+const HARDCODED_CLIENT_ID = '828835228790-ko2jv2f7nb9c23ncumbvp7javh02ot58.apps.googleusercontent.com';
+const CLIENT_ID = localStorage.getItem('studyos_google_client_id') || HARDCODED_CLIENT_ID;
 
 const SCOPES = [
   'https://www.googleapis.com/auth/tasks',
@@ -38,7 +39,7 @@ class GoogleAuth {
   }
 
   get isConfigured() {
-    return CLIENT_ID !== 'YOUR_GOOGLE_CLIENT_ID_HERE' && CLIENT_ID.length > 10;
+    return CLIENT_ID && CLIENT_ID !== 'YOUR_GOOGLE_CLIENT_ID_HERE' && CLIENT_ID.length > 10;
   }
 
   /**
