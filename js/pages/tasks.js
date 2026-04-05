@@ -6,6 +6,7 @@ import googleCalendar from '../google-calendar.js';
 import googleAuth from '../google-auth.js';
 
 let activeTab = 'exam';
+let showCompleted = false;
 
 export function renderTasks() {
   const page = document.getElementById('page-tasks');
@@ -13,6 +14,14 @@ export function renderTasks() {
 
   const tasks = store.get('tasks') || [];
   const lastSynced = store.get('googleSync.lastSynced');
+
+  // Auto-sync from Google on every render if connected (debounced)
+  if (googleAuth.isConnected && !googleTasks._syncing) {
+    autoSync();
+  }
+
+  const activeTasks = tasks.filter(t => !t.done);
+  const completedTasks = tasks.filter(t => t.done);
 
   page.innerHTML = `
     <div class="tasks-header">
@@ -25,7 +34,7 @@ export function renderTasks() {
             <div class="sync-dot"></div>
             <span>Last synced: ${lastSynced ? timeSince(lastSynced) : 'Never'}</span>
           </div>
-          <button class="btn btn-ghost btn-sm" onclick="window.StudyOS.syncTasks()">
+          <button class="btn btn-ghost btn-sm" id="sync-btn" onclick="window.StudyOS.syncTasks()">
             <i data-lucide="refresh-cw" style="width:14px;height:14px"></i> Sync
           </button>
         ` : `
@@ -38,26 +47,36 @@ export function renderTasks() {
     </div>
 
     <div class="tabs">
-      <button class="tab ${activeTab === 'exam' ? 'active' : ''}" onclick="window.StudyOS.setTaskTab('exam')">
+      <button class="tab ${activeTab === 'exam' && !showCompleted ? 'active' : ''}" onclick="window.StudyOS.setTaskTab('exam')">
         <i data-lucide="file-text" style="width:14px;height:14px"></i> Exams
+        ${countByType(activeTasks, 'exam') > 0 ? `<span class="tab-count">${countByType(activeTasks, 'exam')}</span>` : ''}
       </button>
-      <button class="tab ${activeTab === 'assignment' ? 'active' : ''}" onclick="window.StudyOS.setTaskTab('assignment')">
+      <button class="tab ${activeTab === 'assignment' && !showCompleted ? 'active' : ''}" onclick="window.StudyOS.setTaskTab('assignment')">
         <i data-lucide="clipboard" style="width:14px;height:14px"></i> Assignments
+        ${countByType(activeTasks, 'assignment') > 0 ? `<span class="tab-count">${countByType(activeTasks, 'assignment')}</span>` : ''}
       </button>
-      <button class="tab ${activeTab === 'goal' ? 'active' : ''}" onclick="window.StudyOS.setTaskTab('goal')">
+      <button class="tab ${activeTab === 'goal' && !showCompleted ? 'active' : ''}" onclick="window.StudyOS.setTaskTab('goal')">
         <i data-lucide="target" style="width:14px;height:14px"></i> Personal Goals
+        ${countByType(activeTasks, 'goal') > 0 ? `<span class="tab-count">${countByType(activeTasks, 'goal')}</span>` : ''}
+      </button>
+      <span style="flex:1"></span>
+      <button class="tab ${showCompleted ? 'active' : ''}" onclick="window.StudyOS.showCompletedTab()" style="margin-left:auto">
+        <i data-lucide="check-circle" style="width:14px;height:14px"></i> Completed
+        ${completedTasks.length > 0 ? `<span class="tab-count">${completedTasks.length}</span>` : ''}
       </button>
     </div>
 
     <div class="tasks-list" id="tasks-list">
-      ${renderTasksList(tasks)}
+      ${showCompleted ? renderCompletedList(completedTasks) : renderActiveList(activeTasks)}
     </div>
 
-    <div style="margin-top:var(--space-4)">
-      <button class="btn btn-primary" onclick="window.StudyOS.showAddTask()">
-        <i data-lucide="plus" style="width:16px;height:16px"></i> Add ${activeTab === 'exam' ? 'Exam' : activeTab === 'assignment' ? 'Assignment' : 'Goal'}
-      </button>
-    </div>
+    ${!showCompleted ? `
+      <div style="margin-top:var(--space-4)">
+        <button class="btn btn-primary" onclick="window.StudyOS.showAddTask()">
+          <i data-lucide="plus" style="width:16px;height:16px"></i> Add ${activeTab === 'exam' ? 'Exam' : activeTab === 'assignment' ? 'Assignment' : 'Goal'}
+        </button>
+      </div>
+    ` : ''}
 
     ${renderAddTaskBottomSheet()}
   `;
@@ -65,7 +84,7 @@ export function renderTasks() {
   if (window.lucide) lucide.createIcons();
 }
 
-function renderTasksList(tasks) {
+function renderActiveList(tasks) {
   const filtered = tasks.filter(t => t.type === activeTab);
   const todayStr = today();
 
@@ -81,43 +100,99 @@ function renderTasksList(tasks) {
     `;
   }
 
-  // Sort: active first (by due date), then done
+  // Sort by due date (earliest first), then by priority
+  const priorityOrder = { high: 0, medium: 1, low: 2 };
   const sorted = [...filtered].sort((a, b) => {
-    if (a.done !== b.done) return a.done ? 1 : -1;
     if (a.dueDate && b.dueDate) return a.dueDate.localeCompare(b.dueDate);
-    return 0;
+    if (a.dueDate && !b.dueDate) return -1;
+    if (!a.dueDate && b.dueDate) return 1;
+    return (priorityOrder[a.priority] || 1) - (priorityOrder[b.priority] || 1);
   });
 
-  return sorted.map(t => {
-    const isOverdue = !t.done && t.dueDate && t.dueDate < todayStr;
-    const isDueSoon = !t.done && t.dueDate && !isOverdue && daysBetween(todayStr, t.dueDate) <= 2;
-    const courseColor = t.course ? COURSE_COLORS[t.course] || '#888' : null;
+  return sorted.map(t => renderTaskCard(t, todayStr)).join('');
+}
 
+function renderCompletedList(tasks) {
+  if (tasks.length === 0) {
     return `
-      <div class="task-card ${t.done ? 'done' : ''} task-card-${t.type}">
-        <div class="checkbox task-checkbox ${t.done ? 'checked' : ''}" onclick="window.StudyOS.toggleTask('${t.id}')"></div>
-        <div class="task-content">
-          <div class="task-title">${t.title}</div>
-          ${t.description ? `<div class="task-description">${t.description}</div>` : ''}
-          <div class="task-meta">
-            ${t.course ? `<span class="course-pill" data-course="${t.course}">${t.course}</span>` : ''}
-            ${t.dueDate ? `
-              <span class="task-due ${isOverdue ? 'overdue' : isDueSoon ? 'due-soon' : ''}">
-                <i data-lucide="calendar" style="width:12px;height:12px"></i>
-                ${formatDate(t.dueDate, { month: 'short', day: 'numeric' })} · ${formatRelativeDate(t.dueDate)}
-              </span>
-            ` : ''}
-            <span class="task-priority priority-${t.priority || 'medium'}">${(t.priority || 'medium').charAt(0).toUpperCase() + (t.priority || 'medium').slice(1)}</span>
-          </div>
-        </div>
-        <div class="task-actions">
-          <button class="btn btn-ghost btn-icon" onclick="window.StudyOS.deleteTask('${t.id}')" title="Delete">
-            <i data-lucide="trash-2" style="width:14px;height:14px;color:var(--color-red)"></i>
-          </button>
-        </div>
+      <div class="empty-state">
+        <i data-lucide="check-circle" class="empty-state-icon"></i>
+        <div class="empty-state-title">No completed tasks</div>
+        <div class="empty-state-text">Complete tasks and they'll appear here</div>
       </div>
     `;
-  }).join('');
+  }
+
+  // Sort newest completed first
+  const sorted = [...tasks].sort((a, b) => {
+    const dateA = a.completedDate || a.createdAt || '';
+    const dateB = b.completedDate || b.createdAt || '';
+    return dateB.localeCompare(dateA);
+  });
+
+  return `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-3)">
+      <span style="font-size:var(--text-sm);color:var(--text-muted)">${tasks.length} completed task${tasks.length !== 1 ? 's' : ''}</span>
+      <button class="btn btn-ghost btn-sm" onclick="window.StudyOS.clearCompleted()" style="color:var(--color-red)">
+        <i data-lucide="trash-2" style="width:12px;height:12px"></i> Clear All
+      </button>
+    </div>
+    ${sorted.map(t => renderCompletedCard(t)).join('')}
+  `;
+}
+
+function renderTaskCard(t, todayStr) {
+  const isOverdue = t.dueDate && t.dueDate < todayStr;
+  const isDueSoon = t.dueDate && !isOverdue && daysBetween(todayStr, t.dueDate) <= 2;
+
+  return `
+    <div class="task-card task-card-${t.type} ${isOverdue ? 'task-overdue' : ''}">
+      <div class="checkbox task-checkbox" onclick="window.StudyOS.toggleTask('${t.id}')"></div>
+      <div class="task-content">
+        <div class="task-title">${t.title}</div>
+        ${t.description ? `<div class="task-description">${t.description}</div>` : ''}
+        <div class="task-meta">
+          ${t.course ? `<span class="course-pill" data-course="${t.course}">${t.course}</span>` : ''}
+          ${t.dueDate ? `
+            <span class="task-due ${isOverdue ? 'overdue' : isDueSoon ? 'due-soon' : ''}">
+              <i data-lucide="calendar" style="width:12px;height:12px"></i>
+              ${formatDate(t.dueDate, { month: 'short', day: 'numeric' })} · ${formatRelativeDate(t.dueDate)}
+            </span>
+          ` : ''}
+          <span class="task-priority priority-${t.priority || 'medium'}">${(t.priority || 'medium').charAt(0).toUpperCase() + (t.priority || 'medium').slice(1)}</span>
+        </div>
+      </div>
+      <div class="task-actions">
+        <button class="btn btn-ghost btn-icon" onclick="window.StudyOS.deleteTask('${t.id}')" title="Delete">
+          <i data-lucide="trash-2" style="width:14px;height:14px;color:var(--color-red)"></i>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function renderCompletedCard(t) {
+  const completedDate = t.completedDate ? formatDate(t.completedDate.split('T')[0], { month: 'short', day: 'numeric' }) : '';
+  const typeIcon = t.type === 'exam' ? '📝' : t.type === 'assignment' ? '📋' : '🎯';
+
+  return `
+    <div class="task-card done task-card-completed">
+      <div class="checkbox task-checkbox checked" onclick="window.StudyOS.toggleTask('${t.id}')"></div>
+      <div class="task-content">
+        <div class="task-title" style="text-decoration:line-through;opacity:0.6">${t.title}</div>
+        <div class="task-meta">
+          ${t.course ? `<span class="course-pill" data-course="${t.course}">${t.course}</span>` : ''}
+          <span style="font-size:var(--text-xs);color:var(--text-muted)">${typeIcon} ${t.type}</span>
+          ${completedDate ? `<span style="font-size:var(--text-xs);color:var(--color-green)">✓ Completed ${completedDate}</span>` : ''}
+        </div>
+      </div>
+      <div class="task-actions">
+        <button class="btn btn-ghost btn-icon" onclick="window.StudyOS.deleteTask('${t.id}')" title="Delete">
+          <i data-lucide="trash-2" style="width:14px;height:14px;color:var(--color-red)"></i>
+        </button>
+      </div>
+    </div>
+  `;
 }
 
 function renderAddTaskBottomSheet() {
@@ -170,7 +245,7 @@ function renderAddTaskBottomSheet() {
         <div style="display:flex;align-items:center;justify-content:space-between;padding:var(--space-2) 0">
           <label class="form-label" style="margin:0">Auto-create Google Calendar event</label>
           <label class="toggle">
-            <input type="checkbox" id="task-auto-calendar" checked>
+            <input type="checkbox" id="task-auto-calendar" ${googleAuth.isConnected ? 'checked' : ''}>
             <span class="toggle-slider"></span>
           </label>
         </div>
@@ -183,10 +258,48 @@ function renderAddTaskBottomSheet() {
   `;
 }
 
+// --- Auto Sync ---
+let _lastAutoSync = 0;
+async function autoSync() {
+  const now = Date.now();
+  // Only auto-sync every 30 seconds minimum
+  if (now - _lastAutoSync < 30000) return;
+  _lastAutoSync = now;
+
+  try {
+    await googleTasks.syncTasks();
+    // Re-render only if tasks page is still visible
+    const page = document.getElementById('page-tasks');
+    if (page?.classList.contains('page-active')) {
+      const tasks = store.get('tasks') || [];
+      const listEl = document.getElementById('tasks-list');
+      if (listEl) {
+        const activeTasks = tasks.filter(t => !t.done);
+        listEl.innerHTML = showCompleted ? renderCompletedList(tasks.filter(t => t.done)) : renderActiveList(activeTasks);
+        if (window.lucide) lucide.createIcons();
+      }
+      // Update last synced
+      const lastSynced = store.get('googleSync.lastSynced');
+      const syncStatusEl = document.querySelector('.sync-status span');
+      if (syncStatusEl && lastSynced) {
+        syncStatusEl.textContent = `Last synced: ${timeSince(lastSynced)}`;
+      }
+    }
+  } catch (e) {
+    console.warn('Auto-sync failed:', e);
+  }
+}
+
 // --- Actions ---
 
 export function setTaskTab(tab) {
   activeTab = tab;
+  showCompleted = false;
+  renderTasks();
+}
+
+export function showCompletedTab() {
+  showCompleted = true;
   renderTasks();
 }
 
@@ -246,6 +359,8 @@ export async function submitTask() {
   }
 
   hideAddTask();
+  activeTab = type; // Switch to the tab of the task we just added
+  showCompleted = false;
   renderTasks();
   showToast('Task added successfully', 'success');
 }
@@ -265,11 +380,12 @@ export async function toggleTask(taskId) {
   }
 
   renderTasks();
-  // Also refresh dashboard if visible
-  if (document.getElementById('page-dashboard')?.classList.contains('page-active')) {
+
+  // Also refresh dashboard
+  try {
     const { renderDashboard } = await import('./dashboard.js');
     renderDashboard();
-  }
+  } catch (e) {}
 }
 
 export async function deleteTask(taskId) {
@@ -288,14 +404,44 @@ export async function deleteTask(taskId) {
   showToast('Task deleted', 'info');
 }
 
-export async function syncTasks() {
-  showToast('Syncing tasks...', 'info');
-  await googleTasks.syncTasks();
+export function clearCompleted() {
+  if (!confirm('Delete all completed tasks? This cannot be undone.')) return;
+
+  const tasks = store.get('tasks') || [];
+  const completedWithGoogle = tasks.filter(t => t.done && t.googleTaskId);
+
+  // Delete from Google Tasks
+  if (googleAuth.isConnected) {
+    completedWithGoogle.forEach(t => {
+      googleTasks.deleteTask(t.googleTaskId).catch(() => {});
+    });
+  }
+
+  store.removeWhere('tasks', t => t.done);
   renderTasks();
-  showToast('Tasks synced', 'success');
+  showToast('Completed tasks cleared', 'info');
+}
+
+export async function syncTasks() {
+  const btn = document.getElementById('sync-btn');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i data-lucide="loader" style="width:14px;height:14px;animation:spin 1s linear infinite"></i> Syncing...';
+    if (window.lucide) lucide.createIcons();
+  }
+
+  showToast('Syncing tasks with Google...', 'info');
+  await googleTasks.syncTasks();
+  _lastAutoSync = Date.now();
+  renderTasks();
+  showToast('Tasks synced ✓', 'success');
 }
 
 // --- Helpers ---
+
+function countByType(tasks, type) {
+  return tasks.filter(t => t.type === type).length;
+}
 
 function daysBetween(dateStr1, dateStr2) {
   const d1 = new Date(dateStr1);
@@ -325,4 +471,4 @@ function showToast(message, type = 'info') {
   setTimeout(() => toast.remove(), 3500);
 }
 
-export default { renderTasks, setTaskTab, showAddTask, hideAddTask, submitTask, toggleTask, deleteTask, syncTasks };
+export default { renderTasks, setTaskTab, showCompletedTab, showAddTask, hideAddTask, submitTask, toggleTask, deleteTask, clearCompleted, syncTasks };

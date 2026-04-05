@@ -12,7 +12,7 @@ import { renderSidebar, updateSidebarProfile, renderMobileNav, toggleFocusMode }
 import { showOnboarding } from './components/onboarding.js';
 import { renderDashboard } from './pages/dashboard.js';
 import { renderCourses, cycleTopicStatus, addChapter, addTopic, addTopicToLog } from './pages/courses.js';
-import { renderTasks, setTaskTab, showAddTask, hideAddTask, submitTask, toggleTask, deleteTask, syncTasks } from './pages/tasks.js';
+import { renderTasks, setTaskTab, showCompletedTab, showAddTask, hideAddTask, submitTask, toggleTask, deleteTask, clearCompleted, syncTasks } from './pages/tasks.js';
 import { renderLogger, onLoggerCourseChange, onLoggerChapterChange, toggleStopwatch, resetStopwatch, logSession, deleteSession } from './pages/logger.js';
 import { renderProgress } from './pages/progress.js';
 import { renderCalendar, calendarPrev, calendarNext, calendarToday, setCalendarView, calendarDayClick, calendarSlotClick } from './pages/calendar.js';
@@ -34,13 +34,14 @@ window.StudyOS = {
 
   // Tasks
   setTaskTab,
+  showCompletedTab,
   showAddTask,
   hideAddTask,
   submitTask,
   deleteTask,
+  clearCompleted,
   syncTasks: async () => {
     await syncTasks();
-    renderTasks();
   },
 
   // Logger

@@ -60,7 +60,7 @@ class GoogleTasks {
   }
 
   /**
-   * Sync tasks: pull from Google, merge with local
+   * Full two-way sync: pull remote changes, push local changes
    */
   async syncTasks() {
     if (!this.isAvailable || this._syncing) return;
@@ -71,7 +71,7 @@ class GoogleTasks {
       if (!listId) return;
 
       const res = await googleAuth.fetch(
-        `${TASKS_BASE}/lists/${listId}/tasks?showCompleted=true&maxResults=100`
+        `${TASKS_BASE}/lists/${listId}/tasks?showCompleted=true&showHidden=true&maxResults=100`
       );
       if (!res.ok) return;
 
@@ -79,35 +79,104 @@ class GoogleTasks {
       const remoteTasks = data.items || [];
       const localTasks = store.get('tasks') || [];
 
-      // Merge: deduplication by googleTaskId or title+date
-      for (const remote of remoteTasks) {
-        const existingIdx = localTasks.findIndex(
-          t => t.googleTaskId === remote.id ||
-            (t.title === remote.title && t.dueDate === remote.due?.split('T')[0])
-        );
+      // Build lookup maps
+      const remoteById = new Map();
+      remoteTasks.forEach(r => remoteById.set(r.id, r));
 
-        if (existingIdx >= 0) {
-          // Update local with remote status
+      const localByGoogleId = new Map();
+      localTasks.forEach((t, i) => {
+        if (t.googleTaskId) localByGoogleId.set(t.googleTaskId, i);
+      });
+
+      // 1. Update existing local tasks with remote status changes
+      for (const remote of remoteTasks) {
+        const localIdx = localByGoogleId.get(remote.id);
+
+        if (localIdx !== undefined) {
+          // Task exists locally — sync status both ways
+          const local = localTasks[localIdx];
           const isRemoteDone = remote.status === 'completed';
-          localTasks[existingIdx].googleTaskId = remote.id;
-          if (isRemoteDone && !localTasks[existingIdx].done) {
-            localTasks[existingIdx].done = true;
-            localTasks[existingIdx].completedDate = remote.completed;
+
+          // Remote was completed (e.g., on phone) → mark local done
+          if (isRemoteDone && !local.done) {
+            localTasks[localIdx].done = true;
+            localTasks[localIdx].completedDate = remote.completed || new Date().toISOString();
+          }
+
+          // Remote was uncompleted → mark local undone
+          if (!isRemoteDone && local.done) {
+            localTasks[localIdx].done = false;
+            localTasks[localIdx].completedDate = null;
+          }
+
+          // Update title if changed remotely
+          if (remote.title && remote.title !== local.title) {
+            localTasks[localIdx].title = remote.title;
+          }
+
+          // Update due date if changed remotely
+          const remoteDue = remote.due?.split('T')[0] || null;
+          if (remoteDue !== local.dueDate) {
+            localTasks[localIdx].dueDate = remoteDue;
           }
         } else {
-          // Add remote task to local
-          localTasks.push({
-            id: uid(),
-            googleTaskId: remote.id,
-            title: remote.title || 'Untitled',
-            description: remote.notes || '',
-            dueDate: remote.due?.split('T')[0] || null,
-            done: remote.status === 'completed',
-            type: 'goal', // Default type for imported tasks
-            course: null,
-            priority: 'medium',
-            createdAt: remote.updated || new Date().toISOString(),
-          });
+          // Check by title+date match (for tasks created before sync)
+          const titleMatch = localTasks.findIndex(
+            t => !t.googleTaskId && t.title === remote.title && t.dueDate === (remote.due?.split('T')[0] || null)
+          );
+
+          if (titleMatch >= 0) {
+            localTasks[titleMatch].googleTaskId = remote.id;
+            const isRemoteDone = remote.status === 'completed';
+            if (isRemoteDone) {
+              localTasks[titleMatch].done = true;
+              localTasks[titleMatch].completedDate = remote.completed || new Date().toISOString();
+            }
+          } else {
+            // New task from Google — add to local
+            localTasks.push({
+              id: uid(),
+              googleTaskId: remote.id,
+              title: remote.title || 'Untitled',
+              description: remote.notes || '',
+              dueDate: remote.due?.split('T')[0] || null,
+              done: remote.status === 'completed',
+              completedDate: remote.status === 'completed' ? (remote.completed || new Date().toISOString()) : null,
+              type: 'goal', // Default type for imported tasks
+              course: null,
+              priority: 'medium',
+              createdAt: remote.updated || new Date().toISOString(),
+            });
+          }
+        }
+      }
+
+      // 2. Push local tasks that don't have a googleTaskId yet
+      for (let i = 0; i < localTasks.length; i++) {
+        const local = localTasks[i];
+        if (!local.googleTaskId) {
+          try {
+            const body = {
+              title: local.title,
+              notes: local.description || '',
+              status: local.done ? 'completed' : 'needsAction',
+            };
+            if (local.dueDate) {
+              body.due = new Date(local.dueDate).toISOString();
+            }
+
+            const createRes = await googleAuth.fetch(`${TASKS_BASE}/lists/${listId}/tasks`, {
+              method: 'POST',
+              body: JSON.stringify(body),
+            });
+
+            if (createRes.ok) {
+              const created = await createRes.json();
+              localTasks[i].googleTaskId = created.id;
+            }
+          } catch (e) {
+            console.warn('GoogleTasks: Failed to push local task:', local.title, e);
+          }
         }
       }
 
