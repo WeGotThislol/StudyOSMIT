@@ -2,7 +2,7 @@
 // Uses Google Identity Services (GSI) for OAuth 2.0
 
 // ⚠️ REPLACE THIS with your Google Cloud project's Client ID
-const CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID_HERE';
+const CLIENT_ID = '828835228790-ko2jv2f7nb9c23ncumbvp7javh02ot58.apps.googleusercontent.com';
 
 const SCOPES = [
   'https://www.googleapis.com/auth/tasks',
