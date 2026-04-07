@@ -124,7 +124,7 @@ async function initApp() {
   renderSidebar();
   renderMobileNav();
 
-  // Initialize Google Auth
+  // Initialize Google Auth (restores session from sessionStorage if valid)
   const customClientId = localStorage.getItem('studyos_google_client_id');
   if (customClientId) {
     // Override client ID if user provided one in settings
@@ -132,13 +132,20 @@ async function initApp() {
   }
   await googleAuth.init();
 
-  // Listen to auth changes
+  // Listen to auth state changes (login, logout, token refresh)
   googleAuth.onAuthChange((connected, profile) => {
     updateSidebarProfile();
     if (connected) {
       googleTasks.syncTasks();
     }
   });
+
+  // If session was restored from sessionStorage, update UI immediately
+  if (googleAuth.isConnected) {
+    updateSidebarProfile();
+    // Trigger an initial background sync
+    googleTasks.syncTasks().catch(() => {});
+  }
 
   // Register routes
   router.register('dashboard', () => renderDashboard());
